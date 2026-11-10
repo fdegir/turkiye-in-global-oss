@@ -218,3 +218,31 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# Environment variables and local secrets
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# macOS / Windows
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# Editors and temporary files
+*.swp
+*.swo
+*.tmp
+*.temp
+*.bak
+.idea/
+
+# Local research configuration and credentials
+.local/
+.secrets/
