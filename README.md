@@ -11,6 +11,15 @@ An empirical study of Türkiye's participation in the global open-source softwar
 
 The country and project samples must be frozen using documented criteria before substantive contribution comparisons. Do not select or replace projects based on the observed level of Türkiye-attributed contributions.
 
+Country comparison-group labels in countries.csv describe the sampling design, not contribution performance:
+- focal_country: Türkiye.
+- original_peer_comparator: Brazil, Poland, Spain and South Korea.
+- original_reference_comparator: Germany, France, India and Japan.
+- additional_G20_comparator: other sampled G20 country members.
+- additional_european_comparator: Netherlands, Sweden and Finland. Poland and Spain also retain their original peer-comparator tag.
+
+The 36-project inventory is provisional and remains subject to the LFX coverage and repository-mapping audit.
+
 ## Repository data conventions
 
 Use each format for the kind of information it represents:

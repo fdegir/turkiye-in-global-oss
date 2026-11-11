@@ -2,11 +2,11 @@
 
 Pilot slug: backstage
 
-Status: pending API verification.
+Status: example project/endpoint only; pending API verification and not yet selected as the analytical pilot. Backstage was added because its candidate project-details URL was supplied as an example. Select the actual pilot using the criteria in issue #11, including evidence of meaningful Türkiye-attributed activity where available.
 
 The candidate project-details URL is recorded in data/audit/project_api_endpoints.csv. This directory will contain sanitized JSON examples only after the corresponding endpoints have been called and their responses inspected.
 
-Expected sample types to investigate during issue #11:
+Potential sample types to investigate if Backstage is confirmed as the pilot in issue #11:
 
 - project details / overview;
 - individual geographical distribution under the code-contribution filter;
