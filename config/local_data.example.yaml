@@ -14,7 +14,6 @@ directories:
   processed_tables: "processed/tables"
   validation_reports: "processed/validation_reports"
   logs: "logs"
-  manifests: "manifest"
 
 manifest:
   filename: "manifest.json"
