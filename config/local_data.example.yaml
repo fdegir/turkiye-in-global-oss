@@ -1,0 +1,22 @@
+# Example only. Set OSS_DATA_DIR in your shell or local environment.
+# Do not commit machine-specific absolute paths or credentials.
+schema_version: 1
+
+data_directory:
+  environment_variable: OSS_DATA_DIR
+  default_relative_path: "~/research/turkiye-in-global-oss-data"
+  layout_version: 1
+
+directories:
+  raw_lfx: "raw/lfx"
+  raw_openssf: "raw/openssf"
+  samples: "samples"
+  processed_tables: "processed/tables"
+  validation_reports: "processed/validation_reports"
+  logs: "logs"
+  manifests: "manifest"
+
+manifest:
+  filename: "manifest.json"
+  schema: "schemas/extraction_manifest.schema.json"
+  response_filename: "response.json"
