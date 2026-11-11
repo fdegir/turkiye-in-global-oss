@@ -8,6 +8,7 @@
 4. Record provenance, observation periods and snapshot dates.
 5. Do not create schemas or examples that imply unverified API behaviour.
 6. Keep credentials and secrets out of Git.
+7. Keep raw research data outside the public repository unless redistribution is explicitly permitted.
 
 ## Format choices
 
@@ -27,22 +28,22 @@ JSON response samples must be valid UTF-8 JSON. Do not reformat or normalize fil
 
 ## Directory responsibilities
 
-    config/                 Human-maintained YAML configuration
+    config/                 Human-maintained YAML configuration and JSON examples
     data/metadata/          Country/project inventories and data dictionary (CSV)
     data/audit/             Eligibility and endpoint audit registers (CSV)
-    data/raw/lfx/           Original LFX responses, organized by project/resource
-    data/raw/openssf/       Original OpenSSF responses, organized by source/resource
-    data/samples/lfx/       Small sanitized examples of observed LFX responses
-    data/processed/         Derived/normalized datasets ready for analysis (CSV)
+    data/samples/           Small sanitized examples of observed API responses
     data/project_metrics/   Project-level metrics and extraction log (CSV)
-    schemas/                Analytical CSV headers and, later, validated JSON Schemas
+    schemas/                Analytical CSV headers and validated JSON Schemas
     docs/                   Research methodology and collection documentation
     scripts/                Reproducible collection, transformation and validation code
+
+Collected raw responses and local working datasets live outside this repository in the local data directory. See docs/local_data_directory.md.
 
 ## YAML configuration conventions
 
 - Keep the observation period in one place: config/extraction.yaml.
 - Store project category identifiers and descriptions in config/project_categories.yaml.
+- Store the local data-directory convention in config/local_data.example.yaml.
 - Use stable snake_case identifiers that match the CSV data dictionary.
 - Do not store credentials, tokens, cookies or authorization headers in configuration.
 - Keep source base URLs and API versions explicit, but treat endpoint paths and parameters as unverified until tested and recorded in data/audit/project_api_endpoints.csv.
@@ -52,14 +53,24 @@ JSON response samples must be valid UTF-8 JSON. Do not reformat or normalize fil
 
 data/audit/project_api_endpoints.csv has one row per distinct endpoint and extraction mode. Use a URL template only when the variable path/query structure is known. Record query parameters as JSON text in the CSV cell when they are structured; do not place credentials there. A row is not validated merely because its URL has been recorded. Set verification_status to an explicit state such as example_unverified, not_tested, tested_success or tested_error, and record the test timestamp and HTTP status when applicable.
 
+## Local extraction manifests
+
+Each response stored in the external local data directory must have a neighbouring manifest.json. The manifest describes one response and records endpoint identity, project, non-secret request details, UTC retrieval timestamp, HTTP status, response byte size and SHA-256 checksum, completeness/pagination information, and script provenance.
+
+- Schema: schemas/extraction_manifest.schema.json
+- Illustrative template: config/extraction_manifest.example.json
+- Directory and naming conventions: docs/local_data_directory.md
+
+The example manifest is explicitly illustrative and must be replaced with actual retrieval metadata. It is not evidence that the example endpoint has been tested. Never include credentials or contributor personal data in a manifest.
+
 ## JSON response-sample conventions
 
-See data/samples/README.md. Samples must be captured from actual API responses. Until the pilot confirms endpoint paths and response structure, create no placeholder payloads and no speculative JSON Schemas.
+See data/samples/README.md. Samples must be captured from actual API responses. Until the pilot confirms endpoint paths and response structure, create no placeholder payloads and no speculative response schemas.
 
-## Raw response retention
+## Retention and terms
 
-Keep the original response body unchanged, with request provenance recorded in data/project_metrics/extraction_log.csv. Store raw files only where the source terms permit repository redistribution. If redistribution is not permitted, retain permitted derived fields and document the restriction; do not commit restricted payloads. Never store secrets or credentials.
+A local directory is not an exemption from source terms, privacy obligations or data-retention restrictions. Do not collect or retain contributor-level responses until the Linux Foundation clarifies that the intended academic use and retention are permitted. If redistribution is not permitted, do not commit the response. Record the restriction and retain only permitted derived data. Never store secrets or credentials.
 
 ## Relationship to the LFX pilot
 
-The pilot in issue #11 is the source of truth for confirming endpoint paths, request parameters, response structures, pagination, historical coverage and field semantics. Update this document and add schemas only after observing real responses. The broader candidate-project audit remains tracked separately in issue #4.
+The pilot in issue #11 is the source of truth for confirming endpoint paths, request parameters, response structures, pagination, historical coverage and field semantics. Update documentation and add response schemas only after observing real responses. The broader candidate-project audit remains tracked separately in issue #4.
