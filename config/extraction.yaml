@@ -1,0 +1,31 @@
+# Research extraction defaults.
+# Configuration is not evidence that an endpoint or field is available.
+schema_version: 1
+
+observation_period:
+  start_date: "2021-11-01"
+  end_date: "2026-10-31"
+  granularity: "full_period"
+
+sources:
+  lfx_insights:
+    base_url: "https://api.insights.linuxfoundation.org"
+    api_version: "v1-alpha"
+    endpoint_validation_required: true
+    authentication:
+      configured_in_repository: false
+      note: "Supply credentials through a secure local or CI secret mechanism; never commit them."
+
+response_handling:
+  raw_format: "json"
+  normalized_tabular_format: "csv"
+  preserve_original_response: true
+  sample_policy: "sanitized_actual_responses_only"
+  record_extraction_timestamp_utc: true
+
+missing_values:
+  empty: "not_yet_collected_or_unknown"
+  zero: "observed_zero_only"
+  not_available: "NA"
+  not_reported: "NR"
+  unknown_or_unattributed: "UNK"
