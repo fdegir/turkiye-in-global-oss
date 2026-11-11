@@ -1,0 +1,23 @@
+# Controlled project-category identifiers.
+# These identifiers must match projects.csv and analysis code.
+schema_version: 1
+
+categories:
+  - id: "operating_systems_foundational"
+    label: "Operating systems and foundational systems"
+    target_project_count: 6
+  - id: "cloud_infrastructure_virtualization"
+    label: "Cloud infrastructure and virtualization"
+    target_project_count: 6
+  - id: "cloud_native_platforms_networking"
+    label: "Cloud-native platforms and networking"
+    target_project_count: 6
+  - id: "programming_languages_toolchains"
+    label: "Programming languages and developer toolchains"
+    target_project_count: 6
+  - id: "data_platforms_messaging_ai_ml"
+    label: "Data platforms, messaging and AI/ML"
+    target_project_count: 6
+  - id: "security_identity_supply_chain"
+    label: "Security, identity and software supply-chain tooling"
+    target_project_count: 6
