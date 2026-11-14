@@ -4,7 +4,7 @@ This pilot implements issue #11 and uses the seven Backstage entries in the endp
 
 ## Run locally
 
-Requires Python 3.9+; no third-party packages. From the repository root:
+Requires Python 3.9+ and curl (available by default on macOS); no third-party Python packages. The script uses curl because the authenticated endpoint returned HTTP 200 with curl but HTTP 403 with Python urllib during the pilot. The token is sent through stdin, not subprocess arguments. From the repository root:
 
     python3 scripts/extract_lfx_pilot.py --data-dir ./data --zip
 
@@ -22,4 +22,4 @@ A successful capture is not proof of historical coverage or denominator validity
 
     python3 -m unittest discover -s tests
 
-Tests mock HTTP retrieval and verify endpoint configuration, exact-byte preservation, manifests and response validation. Live API behavior still requires your authenticated run.
+Tests mock curl and HTTP retrieval and verify endpoint configuration, exact-byte preservation, manifests and response validation. Live API behavior still requires your authenticated run.
