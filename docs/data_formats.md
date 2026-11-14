@@ -30,7 +30,7 @@ JSON response samples must be valid UTF-8 JSON. Do not reformat or normalize fil
 
     config/                 Human-maintained YAML configuration and JSON examples
     data/metadata/          Country/project inventories and data dictionary (CSV)
-    data/audit/             Eligibility and endpoint audit registers (CSV)
+    data/audit/             Project eligibility and endpoint audit registers (CSV)
     data/samples/           Small sanitized examples of observed API responses
     data/project_metrics/   Project-level metrics and extraction log (CSV)
     schemas/                Analytical CSV headers and validated JSON Schemas
@@ -74,3 +74,11 @@ A local directory is not an exemption from source terms, privacy obligations or 
 ## Relationship to the LFX pilot
 
 The pilot in issue #11 is the source of truth for confirming endpoint paths, request parameters, response structures, pagination, historical coverage and field semantics. Update documentation and add response schemas only after observing real responses. The broader candidate-project audit remains tracked separately in issue #4.
+
+## Project inventory versus eligibility audit
+
+`data/metadata/projects.csv` is the canonical one-row-per-project inventory. It stores stable project identity, official website, primary repository, repository platform, public metadata provenance, licence information where unambiguous, and documented foundation affiliation. Leave LFX slug/name blank until the project has been matched to an actual LFX Insights record. Do not infer a foundation relationship from sponsorship or contribution activity.
+
+`data/audit/project_eligibility.csv` stores the separate, project-specific LFX coverage and research-selection assessment. The initial 36 candidates remain provisional: `not_checked` and `pending` are workflow states, not evidence of LFX coverage or inclusion. Geographical data and complete historical coverage must be tested against the agreed observation window before the sample is frozen.
+
+Licence values in the project inventory are partial repository-metadata observations, not legal determinations for every file or subcomponent. A blank licence field means it was not established in this pass; it does not mean the project is unlicensed. Projects may use multiple licences or per-file exceptions. Verify licence files before legal interpretation.

@@ -35,7 +35,8 @@ See docs/data_formats.md and docs/local_data_directory.md.
 ## Main datasets
 
 - data/metadata/countries.csv: country sample and comparison-group labels.
-- data/metadata/projects.csv: provisional project inventory and LFX coverage audit fields.
+- data/metadata/projects.csv: canonical project metadata inventory.
+- data/audit/project_eligibility.csv: separate LFX coverage and research eligibility audit.
 - schemas/country_project_observations.csv: analytical observation record header.
 - data/project_metrics/project_metrics.csv: project-level metadata and snapshot indicators.
 - data/project_metrics/extraction_log.csv: request provenance and extraction audit trail.
@@ -93,3 +94,6 @@ Use these consistently; never silently convert missing records to zero.
 - security_identity_supply_chain
 
 The initial security/supply-chain category uses Trivy in place of SPDX as a software project. SPDX may be retained as a reserve candidate if LFX provides an appropriate project-level activity record.
+
+
+Project metadata has been enriched from public project and repository sources, but LFX project mapping, geographical data availability and full historical coverage remain unverified. See `docs/data_formats.md` for the distinction between project metadata and eligibility auditing.
