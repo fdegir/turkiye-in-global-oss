@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture the seven documented Backstage pilot responses, without normalization."""
+"""Capture the eight documented Backstage pilot responses, without normalization."""
 import argparse
 import csv
 import hashlib
@@ -37,9 +37,9 @@ def git_version():
 def endpoints():
     with REGISTRY.open(newline="", encoding="utf-8") as f:
         rows = [r for r in csv.DictReader(f) if r["project_slug"] == "backstage"]
-    if len(rows) != 7:
-        raise ValueError("Expected seven Backstage endpoints; merge PR #17 first.")
-    expected = {("project_details", "project")} | {
+    if len(rows) != 8:
+        raise ValueError("Expected eight Backstage endpoints.")
+    expected = {("project_details", "project"), ("health_score", "project")} | {
         (scope, entity) for scope in SCOPES for entity in ("individual", "organization")
     }
     if {(r["extraction_mode"], r["entity_type"]) for r in rows} != expected:
@@ -50,6 +50,9 @@ def endpoints():
         url = r["endpoint_url"].rstrip("/")
         if mode == "project_details":
             wanted = BASE + "/v1-alpha/projects/backstage"
+            expected_params = {}
+        elif mode == "health_score":
+            wanted = BASE + "/v1-alpha/projects/backstage/overview/health-score"
             expected_params = {}
         else:
             route = "contributor" if entity == "individual" else "organization"
@@ -129,6 +132,26 @@ def check_payload(raw, mode, entity):
     if mode == "project_details":
         if data.get("slug") != "backstage" or not isinstance(data.get("repositories"), list):
             raise ValueError("Unexpected project details response")
+    elif mode == "health_score":
+        numeric = {"score": 100, "impactScore": 100, "maintainerHealthScore": 40,
+                   "securitySupplyChainScore": 35, "developmentActivityScore": 25,
+                   "coveredCategoryCount": 3, "healthMaxScore": 100}
+        labels = {"healthLabel", "lifecycleLabel", "impactLabel"}
+        if not (set(numeric) | labels) <= data.keys():
+            raise ValueError("Missing health score response fields")
+        for key, maximum in numeric.items():
+            value = data[key]
+            if value is not None and (type(value) not in (int, float) or not 0 <= value <= maximum):
+                raise ValueError("Invalid health score field: " + key)
+        for key in labels:
+            if data[key] is not None and not isinstance(data[key], str):
+                raise ValueError("Invalid health score label: " + key)
+        if data["coveredCategoryCount"] not in (None, 0, 1, 2, 3):
+            raise ValueError("Invalid covered category count")
+        if data["healthMaxScore"] not in (None, 60, 65, 75, 100):
+            raise ValueError("Invalid health score maximum")
+        if data["score"] is not None and data["healthMaxScore"] is not None and data["score"] > data["healthMaxScore"]:
+            raise ValueError("Health score exceeds available maximum")
     else:
         key = "contributors" if entity == "individual" else "organizations"
         pct = "contributorPercentage" if entity == "individual" else "organizationPercentage"
@@ -149,7 +172,7 @@ def capture(row, url, params, token, raw_root, run_id, version):
     if token.encode() in raw:
         raise ValueError("Response contains credential; not saved")
     check_payload(raw, mode, entity)
-    period = "snapshot" if mode == "project_details" else "2021-11-01_2026-10-31"
+    period = "snapshot" if entity == "project" else "2021-11-01_2026-10-31"
     extraction_id = run_id + "-" + mode + "-" + entity
     directory = raw_root / row["resource_type"] / mode / entity / period / extraction_id
     directory.mkdir(parents=True, exist_ok=False)
@@ -159,19 +182,19 @@ def capture(row, url, params, token, raw_root, run_id, version):
         "source": {"name": "lfx_insights", "api_version": row["api_version"], "base_url": BASE},
         "project": {"slug": "backstage", "project_id": row["project_id"]},
         "request": {"method": "GET", "url": url, "query_parameters": params,
-                    "requested_period": None if mode == "project_details" else
+                    "requested_period": None if entity == "project" else
                     {"start_date": START, "end_date": END}},
         "retrieval": {"retrieved_at_utc": retrieved, "http_status": status,
                       "content_type": content_type, "duration_ms": duration},
         "response": {"file": "response.json", "sha256": hashlib.sha256(raw).hexdigest(),
                      "size_bytes": len(raw), "format": "json", "is_complete": True,
-                     "pagination": None if mode == "project_details" else
+                     "pagination": None if entity == "project" else
                      {"strategy": "none", "pages_retrieved": 1, "next_page_present": False,
                       "notes": "Unpaginated geographical endpoint."}},
         "provenance": {"script_version": version,
                        "repository_url": "https://github.com/fdegir/turkiye-in-global-oss",
                        "sanitized": False,
-                       "notes": "Complete HTTP response; historical coverage and denominator not yet validated. API endDate is exclusive."}
+                       "notes": ("Project snapshot at retrieval; metric availability and scoring coverage vary." if entity == "project" else "Complete HTTP response; historical coverage and denominator not yet validated. API endDate is exclusive.")}
     }
     (directory / "response.json").write_bytes(raw)
     (directory / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
@@ -182,6 +205,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path, default=None,
                         help="Local data root (contains raw/); defaults to OSS_DATA_DIR or repo data/")
+    parser.add_argument("--health-only", action="store_true", help="Capture only the new project health snapshot")
     parser.add_argument("--zip", action="store_true", help="Create a ZIP of this run's successful responses and manifests")
     args = parser.parse_args()
     data_dir = (args.data_dir or Path(os.environ.get("OSS_DATA_DIR") or ROOT / "data")).expanduser().resolve()
@@ -190,6 +214,8 @@ def main():
         planned = list(endpoints())
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
+    if args.health_only:
+        planned = [entry for entry in planned if entry[0]["extraction_mode"] == "health_score"]
     token = os.environ.get("LFX_API_TOKEN", "").strip()
     if not token:
         parser.error("LFX_API_TOKEN environment variable must be set")
@@ -207,7 +233,7 @@ def main():
             print("FAILED  " + label + ": " + str(exc), file=sys.stderr, flush=True)
             if isinstance(exc, RuntimeError) and str(exc) in ("HTTP 401", "HTTP 403"):
                 break
-    print("Captured " + str(len(successes)) + "/7 responses in " + str(raw_root))
+    print("Captured " + str(len(successes)) + "/" + str(len(planned)) + " responses in " + str(raw_root))
     if args.zip and successes:
         bundle = raw_root / (run_id + ".zip")
         with zipfile.ZipFile(bundle, "x", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -218,7 +244,7 @@ def main():
         print("Review bundle: " + str(bundle))
     if failures:
         print("Incomplete pilot; review failures and rerun. Previous captures are preserved.", file=sys.stderr)
-    return 0 if len(successes) == 7 else 1
+    return 0 if len(successes) == len(planned) else 1
 
 
 if __name__ == "__main__":

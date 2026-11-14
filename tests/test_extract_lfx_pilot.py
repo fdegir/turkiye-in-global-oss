@@ -50,8 +50,8 @@ class PilotTests(unittest.TestCase):
 
     def test_inventory(self):
         entries = list(pilot.endpoints())
-        self.assertEqual(len(entries), 7)
-        self.assertEqual(len({r["endpoint_id"] for r, _, _ in entries}), 7)
+        self.assertEqual(len(entries), 8)
+        self.assertEqual(len({r["endpoint_id"] for r, _, _ in entries}), 8)
         for row, _, params in entries:
             if row["entity_type"] != "project":
                 self.assertEqual(params["endDate"], "2026-11-01")
@@ -69,6 +69,27 @@ class PilotTests(unittest.TestCase):
             self.assertEqual(manifest["response"]["size_bytes"], len(raw))
             self.assertEqual(manifest["request"]["query_parameters"], params)
             self.assertNotIn("test-token", json.dumps(manifest))
+
+    def test_health_snapshot_capture(self):
+        row, url, params = next(r for r in pilot.endpoints() if r[0]["extraction_mode"] == "health_score")
+        payload = {"score": 55, "healthLabel": "healthy", "lifecycleLabel": "active",
+                   "impactScore": None, "impactLabel": None, "maintainerHealthScore": 30,
+                   "securitySupplyChainScore": None, "developmentActivityScore": 25,
+                   "coveredCategoryCount": 2, "healthMaxScore": 65}
+        raw = json.dumps(payload).encode()
+        self.assertEqual(params, {})
+        self.assertTrue(url.endswith("/overview/health-score"))
+        with tempfile.TemporaryDirectory() as tmp, patch.object(pilot, "fetch", return_value=(200, "application/json", raw, 5)):
+            directory = pilot.capture(row, url, params, "test-token", Path(tmp), "run", "test-version")
+            self.assertEqual((directory / "response.json").read_bytes(), raw)
+            manifest = json.loads((directory / "manifest.json").read_text())
+            self.assertIsNone(manifest["request"]["requested_period"])
+            self.assertIsNone(manifest["response"]["pagination"])
+            self.assertIn("snapshot", directory.parts)
+        self.assertEqual(pilot.check_payload(json.dumps(dict.fromkeys(payload)).encode(), "health_score", "project"), dict.fromkeys(payload))
+        payload["score"] = 70
+        with self.assertRaises(ValueError):
+            pilot.check_payload(json.dumps(payload).encode(), "health_score", "project")
 
     def test_bad_payload(self):
         with self.assertRaises(ValueError):
