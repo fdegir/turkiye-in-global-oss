@@ -1,6 +1,10 @@
 import hashlib
 import importlib.util
 import json
+import os
+import sys
+import io
+from contextlib import redirect_stderr
 from pathlib import Path
 import tempfile
 import unittest
@@ -13,6 +17,14 @@ SPEC.loader.exec_module(pilot)
 
 
 class PilotTests(unittest.TestCase):
+    def test_missing_token_fails_without_request(self):
+        with patch.dict(os.environ, {"LFX_API_TOKEN": ""}), patch.object(sys, "argv", [str(SCRIPT)]), patch.object(pilot, "fetch") as fetch, redirect_stderr(io.StringIO()) as stderr:
+            with self.assertRaises(SystemExit) as exc:
+                pilot.main()
+            self.assertEqual(exc.exception.code, 2)
+            self.assertIn("LFX_API_TOKEN", stderr.getvalue())
+            fetch.assert_not_called()
+
     def test_inventory(self):
         entries = list(pilot.endpoints())
         self.assertEqual(len(entries), 7)
