@@ -8,7 +8,7 @@ Requires Python 3.9+; no third-party packages. From the repository root:
 
     python3 scripts/extract_lfx_pilot.py --data-dir ./data --zip
 
-Enter your LFX Insights personal access token at the hidden prompt, or set the LFX_API_TOKEN environment variable securely beforehand. Never put the token in a command argument, source file, or shared output.
+Set the LFX_API_TOKEN environment variable securely before running. The script requires this variable and exits with an error if it is missing or empty; it never prompts for credentials. Never put the token in a command argument, source file, or shared output.
 
 The explicit data directory above selects the ignored data/raw folder in your local repository checkout. Alternatively omit --data-dir to use OSS_DATA_DIR when configured, or the repository data directory by default. To use the separate research data directory, specify its root (not raw/).
 
