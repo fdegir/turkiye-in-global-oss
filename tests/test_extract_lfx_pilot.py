@@ -3,6 +3,7 @@ import importlib.util
 import json
 import os
 import sys
+import subprocess
 import io
 from contextlib import redirect_stderr
 from pathlib import Path
@@ -24,6 +25,28 @@ class PilotTests(unittest.TestCase):
             self.assertEqual(exc.exception.code, 2)
             self.assertIn("LFX_API_TOKEN", stderr.getvalue())
             fetch.assert_not_called()
+
+    def test_curl_transport_and_rate_limit(self):
+        calls = []
+        def fake_run(args, **kwargs):
+            calls.append(args)
+            self.assertNotIn("test-token", " ".join(args))
+            self.assertEqual(kwargs["input"], b"Authorization: Bearer test-token\n")
+            self.assertEqual(args[0], "curl")
+            self.assertIn("@-", args)
+            self.assertIn("includeCollaborations=true", args[-1])
+            Path(args[args.index("--output") + 1]).write_bytes(b'{"data":[]}')
+            header_file = Path(args[args.index("--dump-header") + 1])
+            if len(calls) == 1:
+                header_file.write_text("HTTP/2 429\nRetry-After: 2\n\n")
+                return subprocess.CompletedProcess(args, 0, b"429\napplication/json", b"")
+            header_file.write_text("HTTP/2 200\nX-RateLimit-Remaining: 0\nX-RateLimit-Reset: 1\n\n")
+            return subprocess.CompletedProcess(args, 0, b"200\napplication/json", b"")
+        with patch.object(pilot.subprocess, "run", side_effect=fake_run), patch.object(pilot.time, "sleep") as sleep:
+            status, content_type, raw, duration = pilot.fetch(pilot.BASE + "/v1-alpha/projects/backstage", {"includeCollaborations": True}, "test-token")
+        self.assertEqual((status, content_type, raw), (200, "application/json", b'{"data":[]}'))
+        self.assertEqual(len(calls), 2)
+        self.assertEqual([call.args[0] for call in sleep.call_args_list], [2, 1])
 
     def test_inventory(self):
         entries = list(pilot.endpoints())
