@@ -30,7 +30,7 @@ Use each format for the kind of information it represents:
 - JSON Schema: only after actual response shapes and normalized record contracts have been observed and agreed.
 - Markdown: methodology, collection procedures and format conventions.
 
-See docs/data_formats.md.
+See docs/data_formats.md and docs/local_data_directory.md.
 
 ## Main datasets
 
@@ -46,13 +46,15 @@ See docs/data_formats.md.
 
 - config/extraction.yaml: fixed observation window and source defaults.
 - config/project_categories.yaml: category identifiers and descriptions.
+- config/local_data.example.yaml: local data directory conventions.
+- config/extraction_manifest.example.json: illustrative per-response manifest template.
 
 These files describe research configuration; they do not assert that every listed API route or field exists.
 
 ## Raw data and samples
 
-- data/raw/ is reserved for original source responses and other collected source files. Preserve source payloads unchanged where licensing and redistribution terms permit.
-- data/samples/ is reserved for small, sanitized examples used to document and develop against observed response structures.
+- Raw API responses and local working datasets are stored outside this public repository in the external local data directory. See docs/local_data_directory.md.
+- data/samples/ is reserved for small, sanitized examples captured from actual responses and permitted for publication.
 - Never put API tokens, credentials, private headers or personal data in the repository.
 - Do not fabricate example API payloads. A sample must come from an actual response and include provenance.
 

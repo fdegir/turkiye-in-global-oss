@@ -246,3 +246,7 @@ Desktop.ini
 # Local research configuration and credentials
 .local/
 .secrets/
+
+# Local research payloads must not be committed to this public repository
+data/raw/
+data/local/

@@ -1,0 +1,42 @@
+{
+  "_comment": "Illustrative template only. Replace all example values with metadata from an actual retrieval. Do not fabricate a manifest or include secrets.",
+  "schema_version": "1.0",
+  "extraction_id": "20261111T120000Z-backstage-project-details-001",
+  "endpoint_id": "backstage_project_details_example",
+  "source": {
+    "name": "lfx_insights",
+    "api_version": "v1-alpha",
+    "base_url": "https://api.insights.linuxfoundation.org"
+  },
+  "project": {
+    "slug": "backstage",
+    "project_id": null
+  },
+  "request": {
+    "method": "GET",
+    "url": "https://api.insights.linuxfoundation.org/v1-alpha/projects/backstage/",
+    "query_parameters": {},
+    "requested_period": null
+  },
+  "retrieval": {
+    "retrieved_at_utc": "2026-11-11T12:00:00Z",
+    "http_status": 200,
+    "content_type": "application/json",
+    "duration_ms": null
+  },
+  "response": {
+    "file": "response.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "size_bytes": 0,
+    "format": "json",
+    "is_complete": false,
+    "pagination": null
+  },
+  "provenance": {
+    "script_version": "REPLACE_WITH_GIT_COMMIT_OR_SCRIPT_VERSION",
+    "repository_url": "https://github.com/fdegir/turkiye-in-global-oss",
+    "sanitized": false,
+    "sanitization_notes": "",
+    "notes": "Example structure only; no API request or response is represented by this template."
+  }
+}

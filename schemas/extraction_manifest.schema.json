@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fdegir/turkiye-in-global-oss/blob/main/schemas/extraction_manifest.schema.json",
+  "title": "OSS research extraction manifest",
+  "description": "Provenance record for one API response stored in the local research data directory. Do not include credentials or personal contributor data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "extraction_id",
+    "endpoint_id",
+    "source",
+    "project",
+    "request",
+    "retrieval",
+    "response",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "extraction_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique immutable identifier for this response capture."
+    },
+    "endpoint_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier from data/audit/project_api_endpoints.csv."
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "api_version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "lfx_insights",
+            "openssf",
+            "other"
+          ]
+        },
+        "api_version": {
+          "type": "string"
+        },
+        "base_url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slug"
+      ],
+      "properties": {
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "project_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "url",
+        "query_parameters"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "query_parameters": {
+          "type": "object",
+          "description": "Non-secret query parameters only; values may be strings, numbers, booleans, arrays or null.",
+          "additionalProperties": true
+        },
+        "requested_period": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "start_date",
+            "end_date"
+          ],
+          "properties": {
+            "start_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "end_date": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        }
+      }
+    },
+    "retrieval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retrieved_at_utc",
+        "http_status"
+      ],
+      "properties": {
+        "retrieved_at_utc": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp, ending in Z."
+        },
+        "http_status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "content_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "duration_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "sha256",
+        "size_bytes",
+        "format",
+        "is_complete"
+      ],
+      "properties": {
+        "file": {
+          "type": "string",
+          "const": "response.json"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "format": {
+          "type": "string",
+          "const": "json"
+        },
+        "is_complete": {
+          "type": "boolean"
+        },
+        "pagination": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "strategy": {
+              "type": "string"
+            },
+            "pages_retrieved": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "next_page_present": {
+              "type": "boolean"
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "script_version"
+      ],
+      "properties": {
+        "script_version": {
+          "type": "string",
+          "description": "Git commit SHA, release tag or script version."
+        },
+        "repository_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "sanitized": {
+          "type": "boolean",
+          "default": false
+        },
+        "sanitization_notes": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
