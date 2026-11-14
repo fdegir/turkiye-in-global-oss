@@ -2,7 +2,6 @@
 """Capture the seven documented Backstage pilot responses, without normalization."""
 import argparse
 import csv
-import getpass
 import hashlib
 import json
 import os
@@ -165,9 +164,9 @@ def main():
         planned = list(endpoints())
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
-    token = os.environ.get("LFX_API_TOKEN", "").strip() or getpass.getpass("LFX Insights API token: ").strip()
+    token = os.environ.get("LFX_API_TOKEN", "").strip()
     if not token:
-        parser.error("No LFX token supplied")
+        parser.error("LFX_API_TOKEN environment variable must be set")
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid4().hex[:8]
     version = git_version()
     successes, failures = [], []
