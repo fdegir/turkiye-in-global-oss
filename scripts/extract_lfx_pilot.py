@@ -9,10 +9,9 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+import tempfile
 from datetime import datetime, timezone
-from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode, urlsplit
-from urllib.request import Request, build_opener, HTTPRedirectHandler
+from urllib.parse import urlencode
 from uuid import uuid4
 import zipfile
 
@@ -63,37 +62,64 @@ def endpoints():
         yield r, url, params
 
 
-class NoRedirect(HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        return None
-
-
 def fetch(url, params, token):
+    """Use curl, passing the secret header via stdin, never process arguments."""
+    if "\r" in token or "\n" in token:
+        raise ValueError("LFX_API_TOKEN contains an invalid newline")
     query = urlencode({k: str(v).lower() if isinstance(v, bool) else v
                        for k, v in params.items()})
-    request = Request(url + ("?" + query if query else ""),
-                      headers={"Authorization": "Bearer " + token, "Accept": "application/json"})
-    opener = build_opener(NoRedirect())
+    target = url + ("?" + query if query else "")
+    header = ("Authorization: Bearer " + token + "\n").encode()
     for attempt in range(3):
-        start = time.monotonic()
-        try:
-            with opener.open(request, timeout=60) as response:
-                return response.status, response.headers.get("Content-Type"), response.read(), int((time.monotonic()-start)*1000)
-        except HTTPError as exc:
-            if exc.code in (429, 500, 502, 503, 504) and attempt < 2:
-                retry = exc.headers.get("Retry-After", "")
+        with tempfile.TemporaryDirectory() as tmp:
+            body = Path(tmp) / "body"
+            headers = Path(tmp) / "headers"
+            start = time.monotonic()
+            try:
+                result = subprocess.run(
+                    ["curl", "-q", "--silent", "--show-error",
+                     "--connect-timeout", "15", "--max-time", "60",
+                     "--header", "@-", "--header", "Accept: application/json",
+                     "--output", str(body), "--dump-header", str(headers),
+                     "--write-out", "%{http_code}\\n%{content_type}",
+                     "--", target],
+                    input=header, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    check=False, timeout=65)
+            except FileNotFoundError:
+                raise RuntimeError("curl is required but was not found") from None
+            except subprocess.TimeoutExpired:
+                result = None
+            if result is None or result.returncode != 0:
+                if attempt < 2:
+                    time.sleep(2 ** attempt)
+                    continue
+                code = "timeout" if result is None else str(result.returncode)
+                raise RuntimeError("curl transport failed (exit " + code + ")") from None
+            duration = int((time.monotonic() - start) * 1000)
+            status_text, _, content_type = result.stdout.decode("utf-8").partition("\n")
+            status = int(status_text)
+            raw = body.read_bytes()
+            # Header blocks can include an intermediate proxy response. Use the final block.
+            response_headers = {}
+            for line in headers.read_text(encoding="iso-8859-1").splitlines():
+                if line.startswith("HTTP/"):
+                    response_headers = {}
+                elif ":" in line:
+                    name, value = line.split(":", 1)
+                    response_headers[name.lower()] = value.strip()
+            if status in (429, 500, 502, 503, 504) and attempt < 2:
+                retry = response_headers.get("retry-after", "")
                 delay = min(60, int(retry)) if retry.isdigit() else 2 ** attempt
-                exc.close()
                 time.sleep(delay)
                 continue
-            # Do not retain error payloads: they may contain unexpected or sensitive content.
-            status = exc.code
-            exc.close()
-            raise RuntimeError("HTTP " + str(status)) from None
-        except (URLError, TimeoutError):
-            if attempt == 2:
-                raise RuntimeError("Network request failed after three attempts") from None
-            time.sleep(2 ** attempt)
+            if status != 200:
+                # Only report status; never dump response headers, cookies or error payloads.
+                raise RuntimeError("HTTP " + str(status))
+            # Respect the API's advertised remaining requests before the next call.
+            if response_headers.get("x-ratelimit-remaining") == "0":
+                reset = response_headers.get("x-ratelimit-reset", "")
+                time.sleep(max(1, min(60, int(reset))) if reset.isdigit() else 1)
+            return status, content_type or None, raw, duration
 
 
 def check_payload(raw, mode, entity):
