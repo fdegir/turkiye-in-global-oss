@@ -125,12 +125,12 @@ def fetch(url, params, token):
             return status, content_type or None, raw, duration
 
 
-def check_payload(raw, mode, entity):
+def check_payload(raw, mode, entity, slug="backstage"):
     data = json.loads(raw)
     if not isinstance(data, dict):
         raise ValueError("Expected JSON object")
     if mode == "project_details":
-        if data.get("slug") != "backstage" or not isinstance(data.get("repositories"), list):
+        if data.get("slug") != slug or not isinstance(data.get("repositories"), list):
             raise ValueError("Unexpected project details response")
     elif mode == "health_score":
         numeric = {"score": 100, "impactScore": 100, "maintainerHealthScore": 40,
@@ -171,7 +171,7 @@ def capture(row, url, params, token, raw_root, run_id, version):
         raise ValueError("Unexpected HTTP status " + str(status))
     if token.encode() in raw:
         raise ValueError("Response contains credential; not saved")
-    check_payload(raw, mode, entity)
+    check_payload(raw, mode, entity, row["project_slug"])
     period = "snapshot" if entity == "project" else "2021-11-01_2026-10-31"
     extraction_id = run_id + "-" + mode + "-" + entity
     directory = raw_root / row["resource_type"] / mode / entity / period / extraction_id
@@ -180,7 +180,7 @@ def capture(row, url, params, token, raw_root, run_id, version):
         "schema_version": "1.0", "extraction_id": extraction_id,
         "endpoint_id": row["endpoint_id"],
         "source": {"name": "lfx_insights", "api_version": row["api_version"], "base_url": BASE},
-        "project": {"slug": "backstage", "project_id": row["project_id"]},
+        "project": {"slug": row["project_slug"], "project_id": row["project_id"]},
         "request": {"method": "GET", "url": url, "query_parameters": params,
                     "requested_period": None if entity == "project" else
                     {"start_date": START, "end_date": END}},
