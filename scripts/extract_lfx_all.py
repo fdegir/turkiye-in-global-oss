@@ -15,16 +15,24 @@ import extract_lfx_pilot as pilot
 
 INVENTORY = pilot.ROOT / "data/metadata/projects.csv"
 
-def projects():
+def projects(category=None):
     with INVENTORY.open(newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
-    if len(rows) != 36:
-        raise ValueError("Expected 36 candidates in projects.csv")
+    if len(rows) != 42:
+        raise ValueError("Expected 42 candidates in projects.csv")
     for field in ("project_id", "lfx_project_slug"):
         values = [r[field] for r in rows]
-        if len(set(values)) != 36 or any(not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", v) for v in values):
-            raise ValueError("Missing, duplicate or invalid " + field + "; merge project mapping PR #20 first")
+        if len(set(values)) != len(rows) or any(not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", v) for v in values):
+            raise ValueError("Missing, duplicate or invalid " + field + "; check canonical inventory")
+    if category is not None:
+        rows = [r for r in rows if r["category"] == category]
+        if not rows:
+            raise ValueError("Unknown or empty category: " + category)
     return rows
+
+def normalize_repository_url(url):
+    url = url.rstrip("/")
+    return url[:-4] if url.endswith(".git") else url
 
 def endpoints(project):
     slug = project["lfx_project_slug"]
@@ -47,13 +55,14 @@ def endpoints(project):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path)
+    parser.add_argument("--category", help="Collect only projects in this exact category identifier")
     parser.add_argument("--zip", action="store_true", help="Archive this run's captures and summary")
     args = parser.parse_args()
     token = os.environ.get("LFX_API_TOKEN", "").strip()
     if not token:
         parser.error("LFX_API_TOKEN environment variable must be set")
     try:
-        inventory = projects()
+        inventory = projects(args.category)
     except (OSError, ValueError, KeyError) as exc:
         parser.error(str(exc))
     data = (args.data_dir or Path(os.environ.get("OSS_DATA_DIR") or pilot.ROOT / "data")).expanduser().resolve()
@@ -86,7 +95,9 @@ def main():
                     expected = project.get("lfx_primary_repository_url") or project["primary_repository_url"]
                     urls = [r.get("url") for r in payload["repositories"] if isinstance(r, dict)]
                     record["expected_primary_repository"] = expected
-                    record["primary_repository_present"] = expected.rstrip("/") in {u.rstrip("/") for u in urls if isinstance(u, str)}
+                    record["primary_repository_present"] = (None if row["project_id"] == "CL001" else normalize_repository_url(expected) in {normalize_repository_url(u) for u in urls if isinstance(u, str)})
+                    if row["project_id"] == "CL001":
+                        record["repository_mapping_note"] = "OpenStack repository group; no single primary repository."
                     record["repository_count"] = len(urls)
                 print("OK  " + row["endpoint_id"], flush=True)
             except (OSError, ValueError, RuntimeError) as exc:
@@ -98,6 +109,7 @@ def main():
                     stopped = True
     summary = {"run_id": run_id, "script_version": version, "started_period": pilot.START,
                "exclusive_end_date": pilot.END, "project_count": len(inventory),
+               "category_filter": args.category,
                "planned": len(records), "captured": len(captures),
                "records": records,
                "notes": "Capture success is not eligibility or historical coverage verification. Empty geography and absent primary mappings require review."}
@@ -105,7 +117,10 @@ def main():
     summary_file.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     # Preserve the exact selection inventory used by this run; it is public metadata.
     inventory_file = run_root / "projects.csv"
-    inventory_file.write_bytes(INVENTORY.read_bytes())
+    with inventory_file.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(inventory[0]))
+        writer.writeheader()
+        writer.writerows(inventory)
     print(f"Captured {len(captures)}/{len(records)} responses in {root}")
     print("Run summary: " + str(summary_file))
     if args.zip:
