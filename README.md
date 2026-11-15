@@ -18,7 +18,7 @@ Country comparison-group labels in countries.csv describe the sampling design, n
 - additional_G20_comparator: other sampled G20 country members.
 - additional_european_comparator: Netherlands, Sweden and Finland. Poland and Spain also retain their original peer-comparator tag.
 
-The 36-project inventory is provisional and remains subject to the LFX coverage and repository-mapping audit.
+The 42-project inventory comprises seven categories of six projects. The first 36 were captured and technically audited; six software-delivery projects were added by an explicit theoretical design amendment and await capture. See [selection amendment](docs/project_selection_amendment.md) and [data quality register](docs/lfx_data_quality.md).
 
 ## Repository data conventions
 
@@ -31,6 +31,12 @@ Use each format for the kind of information it represents:
 - Markdown: methodology, collection procedures and format conventions.
 
 See docs/data_formats.md and docs/local_data_directory.md.
+
+## Data-quality source of truth
+
+- [LFX data-quality register](docs/lfx_data_quality.md): findings, interpretation rules, open checks and analysis gates.
+- [Project-selection amendment](docs/project_selection_amendment.md): seventh category rationale and selection history.
+- [Bulk extraction](docs/lfx_bulk_extraction.md): full and selective commands.
 
 ## Main datasets
 
@@ -92,8 +98,9 @@ Use these consistently; never silently convert missing records to zero.
 - programming_languages_toolchains
 - data_platforms_messaging_ai_ml
 - security_identity_supply_chain
+- software_delivery_developer_infrastructure
 
 The initial security/supply-chain category uses Trivy in place of SPDX as a software project. SPDX may be retained as a reserve candidate if LFX provides an appropriate project-level activity record.
 
 
-Project metadata has been enriched from public project and repository sources, but LFX project mapping, geographical data availability and full historical coverage remain unverified. See `docs/data_formats.md` for the distinction between project metadata and eligibility auditing.
+Project metadata and the first 36 LFX mappings have been audited. Full historical coverage remains unverified; see the project eligibility audit. See `docs/data_formats.md` for the distinction between project metadata and eligibility auditing.
