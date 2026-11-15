@@ -34,6 +34,8 @@ See docs/data_formats.md and docs/local_data_directory.md.
 
 ## Data-quality source of truth
 
+- [Unknown geography robustness](docs/unknown_geography_robustness.md): observed primary measures, conditional shares and proportional-allocation sensitivity (issue #24).
+
 - [LFX data-quality register](docs/lfx_data_quality.md): findings, interpretation rules, open checks and analysis gates.
 - [Project-selection amendment](docs/project_selection_amendment.md): seventh category rationale and selection history.
 - [Bulk extraction](docs/lfx_bulk_extraction.md): full and selective commands.
