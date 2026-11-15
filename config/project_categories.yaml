@@ -21,3 +21,6 @@ categories:
   - id: "security_identity_supply_chain"
     label: "Security, identity and software supply-chain tooling"
     target_project_count: 6
+  - id: "software_delivery_developer_infrastructure"
+    label: "Software delivery and developer infrastructure"
+    target_project_count: 6
