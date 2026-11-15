@@ -6,7 +6,7 @@
 
 Audit of original 36-project run `20261115T002108Z-118fd4a7`, script revision `2313e592029b9632298fd73d42cb45c50e76107b`. Local ZIP SHA-256: `fe76029a37edbaaa409add8e11fde02970d2d1e677075c40e3dc686bc21a423f`. Capture span 2026-11-15 00:21:09–00:25:14 UTC. The uploaded inventory and run summary match archive bytes. Archive test passed; 578 files (288 response/manifest pairs, summary and inventory); 288/288 SHA-256 and byte lengths match; all HTTP statuses 200; all project IDs, slugs, endpoint URLs and query flags verified. Raw data remains local; no raw payloads or tokens committed. This is capture integrity, not proof of completeness or representativeness.
 
-The six new delivery projects are not included in these statistics. Recompute the report for all 42 after supplemental collection.
+The original findings below remain a historical 36-project baseline. The **combined 42-project audit** appended below supersedes baseline totals for the final sample. Both archives are retained locally; no raw payloads are published.
 
 ## Findings and required treatment
 
@@ -43,13 +43,54 @@ Individual AND organization empty: OS002 FreeBSD, OS005 U-Boot, CL001 OpenStack,
 - [x] Original run archive integrity, identity, scope, query parameters, checksums, counts, percentages and set-bound checks.
 - [x] Original 36 project mappings and empty-response exceptions recorded in eligibility audit.
 - [x] Document category amendment, missingness, denominator and health rules.
-- [ ] Capture six new candidates, verify all 48 manifests, repository mappings (including umbrella projects), geography and all same diagnostics; compare repository overlap across all 42.
-- [ ] Recompute aggregate quality statistics for 42 projects and record per-project/entity/scope provenance and unknown fractions.
+- [x] Capture six new candidates; verify 48 manifests, mappings, geography, diagnostics and exact normalized repository URL overlap across all 42.
+- [x] Recompute combined quality statistics and record project-level scope/entity provenance; delivery unknown fractions below.
 - [ ] Implement reproducible archive-to-CSV normalization and automated validation (#5/#9). Preserve both runs and exact inventory versions; do not silently substitute older pilot data.
 - [ ] Verify country code mapping and distinguish missing from zero; check selected-country row coverage.
 - [ ] Assess historical coverage limitations and source attribution; no assertion of complete five-year ingestion without evidence.
 - [ ] Collect previously agreed external country indicators and external OpenSSF Criticality snapshot (#7/#8).
 - [ ] Carry all material limitations into methodology, results and discussion; assess sensitivity to coverage and partial metrics before statistical analysis (#10). Do not select models solely on apparent significance.
+
+## Supplemental and combined audit — 2026-11-15
+
+Run `20261115T004136Z-1af7e1fe`, script revision `0b43f8d0f0d72878c64ae2d98198ccc808836846`; local ZIP SHA-256 `081af2c5a9409cf78bb1f6d915789136264e7a602ef388a09f58c3d1d57ac24e`. Retrieval span 00:41:40–00:42:18 UTC. Archive contains 98 files (48 response/manifest pairs plus summary and selected inventory). Both original and supplemental ZIPs reopened and independently checked. All 336 response checksums, byte counts, project identities, endpoint URLs, query flags, HTTP statuses and summary geography bucket counts match. No exact normalized repository URL overlap between projects.
+
+| Check | Original 36 | Delivery six | Combined 42 |
+|---|---:|---:|---:|
+| Captures | 288 | 48 | 336 |
+| Geographic responses | 216 | 36 | 252 |
+| Nonempty | 197 | 36 | 233 |
+| Empty Collaboration | 19 | 0 | 19 |
+| Geographic rows | 13,483 | 2,553 | 16,036 |
+| Country/entity scope bound checks | 5,243 | 939 | 6,182 |
+| Percentage mismatches (>0.005 pp) | 0 | 0 | 0 |
+| Invalid count/percentage, duplicate country code or scope violations | 0 | 0 | 0 |
+
+All 42 Code and All responses for both entities nonempty (84 per scope). All six delivery primary repositories match, active and not excluded. Jenkins only indexes core jenkinsci/jenkins, not wider plugins; Argo, Tekton and Bazel are multi-repository aggregates while primary scores refer to preselected repositories. No duplicate pilot: SD002 is the research capture, historical Backstage pilot excluded.
+
+| Project | Repos | All individual buckets | All organization buckets | Unknown individuals % | Unknown organizations % | Health/max | Primary score |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Argo | 38 | 118 | 93 | 42.70 | 21.23 | 72/100 | 0.65740 |
+| Backstage | 23 | 101 | 73 | 42.80 | 17.99 | 68/100 | 0.79975 |
+| Jenkins | 1 | 68 | 36 | 51.26 | 27.17 | 85/100 | 0.71788 |
+| Tekton | 24 | 71 | 46 | 40.43 | 20.76 | 78/100 | 0.62468 |
+| Harbor | 24 | 95 | 71 | 45.74 | 21.06 | 62/100 | 0.57814 |
+| Bazel | 137 | 101 | 66 | 44.34 | 30.38 | 78/100 | 0.58621 |
+
+Final 42-project unknown attribution (All scope, computed from count sums):
+
+| Measure | Individuals | Organizations |
+|---|---:|---:|
+| Median project unknown share | 46.76% | 25.51% |
+| Range | 30.28–75.28% | 17.96–41.29% |
+| Projects >50% Unknown | 17/42 | 0/42 |
+| Weighted across project count sums | 48.07% | 28.04% |
+
+Selected-country All-scope combinations: 1,008 per entity; 963 individual buckets present (45 absent), 904 organization buckets present (104 absent). These are reported bucket presence, not independent historical coverage. Apply DQ06 to normalization.
+
+Combined metric availability: 40/42 primary scores (OpenStack and CRI-O missing); 41/42 Health Score (Linux Kernel missing); 40/42 full Health Score, 40/42 security scores; 38/42 Impact Scores. All six delivery Health Scores have all three categories and max 100. All 41 non-null totals happen to equal the sum of available category components, but do not generalize this arithmetic as the rollup definition. Impact remains deferred. Original Linux and OpenStack caveats unchanged.
+
+**Final freeze:** 42 retained projects, seven categories, 24 countries; 3,024 possible project-country-scope rows. Data collection complete for the eight LFX endpoint types, but attribution, source coverage and historical completeness are not established. No further scope expansion. Archive-to-CSV normalization and repeatable validation remain open. Exploratory country comparisons are not formal hypothesis tests and must not influence selection.
 
 ## Source references
 
