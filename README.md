@@ -6,7 +6,7 @@ An empirical study of Türkiye's participation in the global open-source softwar
 
 - Observation period: 2021-11-01 through 2026-10-31.
 - Country sample: Türkiye and a predefined comparative sample; see data/metadata/countries.csv.
-- Project sample: a provisional, stratified inventory; see data/metadata/projects.csv.
+- Project sample: frozen, stratified inventory of 42 retained projects; see data/metadata/projects.csv.
 - Primary source: LFX Insights, subject to endpoint, attribution and coverage validation.
 
 The country and project samples must be frozen using documented criteria before substantive contribution comparisons. Do not select or replace projects based on the observed level of Türkiye-attributed contributions.
@@ -18,7 +18,7 @@ Country comparison-group labels in countries.csv describe the sampling design, n
 - additional_G20_comparator: other sampled G20 country members.
 - additional_european_comparator: Netherlands, Sweden and Finland. Poland and Spain also retain their original peer-comparator tag.
 
-The 42-project inventory comprises seven categories of six projects. The first 36 were captured and technically audited; six software-delivery projects were added by an explicit theoretical design amendment and await capture. See [selection amendment](docs/project_selection_amendment.md) and [data quality register](docs/lfx_data_quality.md).
+The 42-project inventory comprises seven categories of six projects. All 42 have been captured and technically audited across two runs (288 + 48 responses); all are retained with documented coverage caveats. The researcher confirmed the final freeze on 2026-11-15. See [selection amendment](docs/project_selection_amendment.md) and [data quality register](docs/lfx_data_quality.md).
 
 ## Repository data conventions
 
@@ -103,4 +103,4 @@ Use these consistently; never silently convert missing records to zero.
 The initial security/supply-chain category uses Trivy in place of SPDX as a software project. SPDX may be retained as a reserve candidate if LFX provides an appropriate project-level activity record.
 
 
-Project metadata and the first 36 LFX mappings have been audited. Full historical coverage remains unverified; see the project eligibility audit. See `docs/data_formats.md` for the distinction between project metadata and eligibility auditing.
+Project metadata and all 42 LFX mappings have been audited. Full historical coverage remains unverified; see the project eligibility audit. See `docs/data_formats.md` for the distinction between project metadata and eligibility auditing.

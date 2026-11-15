@@ -21,7 +21,7 @@ Primary repositories are proposed before inspecting the new research captures. A
 
 ## Selection history
 
-Original replacements: Buildroot -> OpenWrt (standalone LFX project unavailable; Yocto considered but core repositories absent), Open vSwitch -> KubeVirt (no suitable standalone LFX record found), runc -> CRI-O (geography unavailable in UI; original API geography not independently tested). The original slot IDs OS006, CL005 and CN003 are retained. All 36 original candidates have nonempty Code and All responses and verified project identity. Retain with the quality caveats documented in [the data-quality register](lfx_data_quality.md). New candidates remain pending the same checks.
+Original replacements: Buildroot -> OpenWrt (standalone LFX project unavailable; Yocto considered but core repositories absent), Open vSwitch -> KubeVirt (no suitable standalone LFX record found), runc -> CRI-O (geography unavailable in UI; original API geography not independently tested). The original slot IDs OS006, CL005 and CN003 are retained. All 36 original candidates have nonempty Code and All responses and verified project identity. Retain with the quality caveats documented in [the data-quality register](lfx_data_quality.md). The six new candidates passed the same technical audit in supplemental run `20261115T004136Z-1af7e1fe`: all primary repository mappings exact and active/nonexcluded; all 36 geographical responses nonempty; no exact repository overlap across the 42. All six retained. The researcher explicitly confirmed the final 42-project freeze on 2026-11-15. No further category, project, country, metric or endpoint expansion. See the data-quality register for remaining limitations.
 
 ## Analysis implications
 
