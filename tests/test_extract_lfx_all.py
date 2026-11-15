@@ -22,6 +22,18 @@ class BulkTests(unittest.TestCase):
                 self.assertEqual(params["endDate"], pilot.END)
                 self.assertEqual((params["includeCodeContributions"], params["includeCollaborations"]), pilot.SCOPES[row["extraction_mode"]])
 
+    def test_inventory_and_category(self):
+        self.assertEqual(len(bulk.projects()), 42)
+        selected = bulk.projects("software_delivery_developer_infrastructure")
+        self.assertEqual(len(selected), 6)
+        self.assertEqual({r["lfx_project_slug"] for r in selected}, {"argo", "backstage", "jenkins", "tekton", "harbor", "bazelbuild-bazel"})
+        self.assertEqual(sum(len(list(bulk.endpoints(r))) for r in selected), 48)
+        with self.assertRaises(ValueError):
+            bulk.projects("not_a_category")
+
+    def test_repository_normalization(self):
+        self.assertEqual(bulk.normalize_repository_url("https://example.org/repo.git/"), "https://example.org/repo")
+
     def test_slug_validation(self):
         raw = b'{"slug":"OpenStack","repositories":[]}'
         pilot.check_payload(raw, "project_details", "project", "OpenStack")
