@@ -29,6 +29,10 @@ The original findings below remain a historical 36-project baseline. The **combi
 
 Individual AND organization empty: OS002 FreeBSD, OS005 U-Boot, CL001 OpenStack, CL003 QEMU, CL004 Xen, DT005 OpenJDK, DA001 PostgreSQL, DA003 Apache Kafka, SC002 Portable OpenSSH. Organization only empty: OS001 Linux Kernel (individual response has 9 buckets). No empty Code or All responses. This likely reflects activity classification/source coverage for some projects, not absence of actual collaboration. Do not assume all collaboration coverage is equally good even when nonempty.
 
+## Attribution robustness extension (issue #24)
+
+See [unknown geography robustness](unknown_geography_robustness.md) for the three approved approaches: observed primary counts/shares, equal-project-weight known-geography shares, and project-specific proportional allocation sensitivity. Preserve original data; compare equal-weight original and conditional shares to isolate denominator effects. Scenario stability is not proof of unbiased attribution. No new source metrics or sample expansion.
+
 ## Interpretation and normalization rules (binding for issue #5/#9)
 
 - Counts are active individuals or organizations matching the filter, not events. Organization geography is attributed to the organization, not necessarily its contributors' locations. Country attribution may overlap; sum of buckets is the verified arithmetic denominator, not necessarily a unique global count.
