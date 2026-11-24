@@ -29,7 +29,7 @@ def analyse(projects,score_file,observations=None):
                 found[key]=(float(row["default_score"]),row["collection_date"])
     out=projects.merge(pd.DataFrame([{"matched_url":k,"openssf_criticality":v[0],
              "openssf_collected_at":v[1]} for k,v in found.items()]),
-             on="matched_url",how="left",validate="one_to_one")
+             on="matched_url",how="left",validate="many_to_one")
     out["match_status"]=out.apply(lambda r: "matched" if pd.notna(r.openssf_criticality)
              else ("non_github_primary" if pd.isna(r.matched_url) else "not_found"),axis=1)
     if observations is not None:
