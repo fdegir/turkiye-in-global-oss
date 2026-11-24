@@ -14,8 +14,8 @@ class TestExternalRanks(unittest.TestCase):
             subset = ("TUR", "BRA", "POL", "ESP")
             external = pd.DataFrame([
                 {"iso2": "TR", "count_total_contributors": 1},
-                {"iso2": "BR", "count_total_contributors": 4},
-                {"iso2": "PL", "count_total_contributors": 3},
+                {"iso2": "BR", "count_total_contributors": 3},
+                {"iso2": "PL", "count_total_contributors": 4},
                 {"iso2": "ES", "count_total_contributors": 2},
             ])
             ranks, summary = analyse(data, external, iso3_codes=subset)
