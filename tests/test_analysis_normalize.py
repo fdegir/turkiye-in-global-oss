@@ -23,6 +23,30 @@ class SyntheticAtlasTests(unittest.TestCase):
             self.assertIn("atlas-security", rows)
             self.assertIn("synthetic_atlas_engine", rows)
 
+    def test_real_lfx_organization_field(self):
+        import json
+        import zipfile
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as d:
+            p = Path(d) / "org.zip"
+            with zipfile.ZipFile(p, "w") as z:
+                z.writestr("bulk_runs/example/projects.csv",
+                           "project_id,project_name,category,lfx_project_slug\n"
+                           "EX001,Atlas,synthetic,atlas-core\n")
+                z.writestr("atlas-core/geographical_distribution/all/organization/"
+                           "2021_2026/one/response.json",
+                           json.dumps({"data": [
+                               {"countryCode": "TR", "organizations": 3, "organizationPercentage": 30},
+                               {"countryCode": "XX", "organizations": 7, "organizationPercentage": 70}
+                           ]}))
+            rows = extract([p], ["TUR", "BRA"])
+            self.assertEqual(rows[0]["entity"], "organization")
+            self.assertEqual(rows[0]["count"], 3)
+            self.assertEqual(rows[0]["denom"], 10)
+            self.assertEqual(rows[0]["unknown"], 7)
+            self.assertEqual(rows[1]["status"], "absent_reported_bucket")
+
 
 if __name__ == "__main__":
     unittest.main()

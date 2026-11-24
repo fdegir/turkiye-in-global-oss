@@ -46,7 +46,7 @@ def extract(archives, countries):
                         raise ValueError(f"Unmapped country code {item.get('countryCode')}")
                     if code in source:
                         raise ValueError(f"Duplicate geographical bucket: {slug} {code}")
-                    source[code] = int(item["contributors"])
+                    source[code] = int(item["contributors" if entity == "individual" else "organizations"])
                 total = sum(source.values())
                 unknown = source.get("UNK", 0)
                 if not entries:
