@@ -56,3 +56,5 @@ def main():
 
 if __name__=="__main__":
     main()
+
+# Analysis input: local derived records; no raw research data committed.
